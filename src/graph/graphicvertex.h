@@ -28,7 +28,6 @@ public:
     void removeFromScene();
 
     bool isNeedUpdatePos() const;
-    void setNeedUpdatePos(bool value);
 
 protected:
     void setEdgesSelect(bool value);
@@ -51,8 +50,6 @@ private:
 
     void vertexSelected();
     void vertexMoved();
-
-    bool _isNeedUpdatePos;
 };
 
 #endif // GRAPHICVERTEX_H

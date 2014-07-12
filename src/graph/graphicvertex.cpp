@@ -20,8 +20,7 @@ graphItemSelectSignalEmitter *GraphicVertex::_selectSignalEmitter = new graphIte
 GraphicVertex::GraphicVertex(Vertex *parentVertex, QGraphicsItem *parent) :
     QAbstractGraphicsShapeItem(parent),
     _parentVertex(parentVertex),
-    _isFixedPos(false),
-    _isNeedUpdatePos(true)
+    _isFixedPos(false)
 {
     setPos(normal_rand_number(0, 200), normal_rand_number(0, 200));
 
@@ -141,7 +140,6 @@ void GraphicVertex::setNodeSelect(bool isSelect)
 
 void GraphicVertex::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    setNeedUpdatePos(true);
     setFixedPos(true);
 
     vertexMoved();
@@ -170,20 +168,15 @@ void GraphicVertex::vertexMoved()
 {
     vertexSelected(); // temp
 }
+
 bool GraphicVertex::isNeedUpdatePos() const
 {
-    return _isNeedUpdatePos;
+    return isSelected();
+//    return _isNeedUpdatePos;
 }
-
-void GraphicVertex::setNeedUpdatePos(bool value)
-{
-    _isNeedUpdatePos = value;
-}
-
 
 void GraphicVertex::updateLinkedEdgePos()
 {
-    setNeedUpdatePos(false);
     updateEdgePos();
 }
 
