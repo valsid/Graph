@@ -26,11 +26,9 @@ SOURCES += main.cpp\
     structures/graphsearchworker.cpp \
     algorithm/getallvertexlistinordervorker.cpp \
     view/matrixitemmodel.cpp \
-    structures/mycolorpushbutton.cpp \
     algorithm/searchcyclepathworker.cpp \
     structures/graphitemselectsignalemitter.cpp \
     algorithm/getgraphvertexleavelistworker.cpp \
-    structures/mydirectpushbutton.cpp \
     graph/edge.cpp \
     graph/vertex.cpp \
     view/idselectdialog.cpp \
@@ -43,7 +41,10 @@ SOURCES += main.cpp\
     graphscene.cpp \
     graphview.cpp \
     view/graphdataview.cpp \
-    view/pathsItemmodel.cpp
+    view/pathsItemmodel.cpp \
+    structures/directpushbutton.cpp \
+    structures/colorpushbutton.cpp \
+    util/rand.cpp
 
 HEADERS  += mainwindow.h \
     structures/nodeData.h \
@@ -55,11 +56,9 @@ HEADERS  += mainwindow.h \
     structures/graphsearchworker.h \
     algorithm/getallvertexlistinordervorker.h \
     view/matrixitemmodel.h \
-    structures/mycolorpushbutton.h \
     algorithm/searchcyclepathworker.h \
     structures/graphitemselectsignalemitter.h \
     algorithm/getgraphvertexleavelistworker.h \
-    structures/mydirectpushbutton.h \
     graph/graph.h \
     graph/edge.h \
     graph/vertex.h \
@@ -74,7 +73,10 @@ HEADERS  += mainwindow.h \
     graphview.h \
     globalsettings.h \
     graphscene.h \
-    view/graphdataview.h
+    view/graphdataview.h \
+    structures/directpushbutton.h \
+    structures/colorpushbutton.h \
+    util/rand.h
 
 FORMS    += mainwindow.ui \
     view/controls.ui \

@@ -7,29 +7,33 @@
 Controls::Controls(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Controls),
-    _vertices(new QList<int>),
-    _verticesWeight(new QList<int>)
+    _currentSelectVertex(nullptr)
 {
     ui->setupUi(this);
 }
 
 Controls::~Controls()
 {
+    clearNodeListItems();
     delete ui;
 }
 
-void Controls::vertexSelected(vertexDataForSelection data)
+void Controls::vertexSelected(Vertex *v)
 {
-    // TODO:
-    return;
-
     ui->stackedWidget->setCurrentIndex(1);
-    ui->sIdValueLabel->setText(QString::number(data.id));
+    _currentSelectVertex = v;
+}
 
-    ui->sFixedPosCheckBox->setEnabled(data.isFixed);
+void Controls::selectedVertexMoved(Vertex *v)
+{
+    if(v != _currentSelectVertex) {
+        vertexSelected(v);
+    }
 
-    ui->sFixedPosXSpinBox->setValue(data.pos.x());
-    ui->sFixedPosYSpinBox->setValue(data.pos.y());
+    ui->sFixedPosCheckBox->setEnabled(v->graphicsVertex()->isFixedPos());
+
+    ui->sFixedPosXSpinBox->setValue(v->graphicsVertex()->x());
+    ui->sFixedPosYSpinBox->setValue(v->graphicsVertex()->y());
 }
 
 void Controls::on_fixedPosCheckBox_toggled(bool checked)
@@ -44,18 +48,13 @@ void Controls::on_okButton_clicked()
     data.isFixedPos     = ui->fixedPosCheckBox->isChecked();
     data.pos            = QPoint(ui->fixedPosXspinBox->value(), ui->fixedPosYspinBox->value());
 
-    if(_vertices->size() != _verticesWeight->size()) {
-        throw userException("Vertices list error");
-    }
-    int vertexNumber = _vertices->size();
-
-    data.vertices.reserve(vertexNumber);
+    data.vertices.reserve(edgeList.size());
 
     edgeData tmp;
-    for(int i = 0; i < vertexNumber; i++) {
-        tmp.vertexId     = _vertices->at(i);
-        tmp.vertexWeight = _verticesWeight->at(i);
-        tmp.direction    = _verticesDirect.at(i)->direction();
+    for(edgeListRowData *row : edgeList.values()) {
+        tmp.vertexId   = row->vertexId;
+        tmp.edgeWeight = row->weight;
+        tmp.direction  = row->direction.direction();
         data.vertices.append(tmp);
     }
 
@@ -66,36 +65,31 @@ void Controls::on_okButton_clicked()
 
 void Controls::on_nodeListAddButton_clicked()
 {
-    int nodeId     = ui->nodeListSpinBox->value();
+    int vertexId     = ui->nodeListSpinBox->value();
 
-    if(!_vertices->contains(nodeId)) {
-        _vertices->append(nodeId);
-        _verticesWeight->append( ui->nodeListWeightSpinBox->value() );
-
-        addEdgesToList(ui->nodeListSpinBox->text(), ui->nodeListWeightSpinBox->text());
+    if(!edgeList.contains(vertexId)) {
+        edgeList[vertexId] = new edgeListRowData(vertexId, ui->nodeListWeightSpinBox->value(),
+                                                 ui->nodeListSpinBox->text(),
+                                                 ui->nodeListWeightSpinBox->text());
+        addEdgeToView(edgeList[vertexId]);
     }
 }
 
 void Controls::on_nodeListDelButton_clicked()
 {
-    int nodeId = ui->nodeListSpinBox->value();
-    int index = _vertices->indexOf(nodeId);
-    _vertices->removeAt(index);
-    _verticesWeight->removeAt(index);
+    edgeListRowData *r = edgeList.take(ui->nodeListSpinBox->value());
 
-    clearNodeListItems();
+    r->direction.setParent(nullptr);
 
-    for(int i = 0; i < _vertices->size(); i++) {
-        addEdgesToList(QString::number(_vertices->at(i)),
-                       QString::number(_verticesWeight->at(i)));
-    }
+    delete r->widgetLink;
+    delete r;
 }
 
 void Controls::on_nodeListClearButton_clicked()
 {
-    _vertices->clear();
-    _verticesWeight->clear();
-    _verticesDirect.clear();
+//    _vertices->clear();
+//    _verticesWeight->clear();
+//    _verticesDirect.clear();
 
     clearNodeListItems();
 }
@@ -111,41 +105,48 @@ void Controls::on_nodeListWeightSpinBox_returnPressed()
     ui->nodeListSpinBox->setValue(ui->nodeListSpinBox->value() + 1);
 }
 
-void Controls::addEdgesToList(QString id, QString weight)
+void Controls::on_backToAddVertex_clicked()
 {
-    QWidget     *widget  = new QWidget(this);
-    QHBoxLayout *hBoxLayout = new QHBoxLayout(widget);
-    hBoxLayout->setMargin(0);
+    ui->stackedWidget->setCurrentIndex(0);
+}
 
-    QLabel *t = new QLabel(id, widget);
-    t->setAlignment(Qt::AlignCenter);
-    hBoxLayout->addWidget(t);
+void Controls::updateDataFromSelectedVertex()
+{
+    GraphicVertex *g = _currentSelectVertex->graphicsVertex();
 
-    t = new QLabel(weight, widget);
-    t->setAlignment(Qt::AlignCenter);
-    hBoxLayout->addWidget(t);
+    ui->sFixedPosCheckBox->setEnabled(g->isFixedPos());
 
-    // TODO: tmp
-//    myDirectPushButton *tmp =;
-    _verticesDirect.append( new myDirectPushButton(directions::INPUT, this));
-
-    hBoxLayout->addWidget(_verticesDirect.last());
-
-    ui->nodeListDataLayout->addWidget(widget);
+    ui->sFixedPosXSpinBox->setValue(g->x());
+    ui->sFixedPosYSpinBox->setValue(g->y());
 }
 
 void Controls::clearNodeListItems()
 {
-    QLayoutItem* item;
-    auto layout   = ui->nodeListDataLayout;
-    while ((item = layout->layout()->takeAt(0)) != nullptr)
-    {
-        delete item->widget();
-        delete item;
+    for(edgeListRowData *d : edgeList.values()) {
+        d->direction.setParent(nullptr);
+        delete d->widgetLink;
+        delete d;
     }
+
+    edgeList.clear();
 }
 
-void Controls::on_backToAddVertex_clicked()
+void Controls::addEdgeToView(edgeListRowData *row)
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    QWidget     *widget     = new QWidget(this);
+    QHBoxLayout *hBoxLayout = new QHBoxLayout(widget);
+    hBoxLayout->setMargin(0);
+
+    QLabel *t = new QLabel(row->textVertexId, widget);
+    t->setAlignment(Qt::AlignCenter);
+    hBoxLayout->addWidget(t);
+
+    t = new QLabel(row->textWeight, widget);
+    t->setAlignment(Qt::AlignCenter);
+    hBoxLayout->addWidget(t);
+
+    hBoxLayout->addWidget(&row->direction);
+
+    row->widgetLink = widget;
+    ui->nodeListDataLayout->addWidget(widget);
 }

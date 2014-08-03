@@ -246,7 +246,7 @@
   <customwidget>
    <class>myColorButtonDialog</class>
    <extends>QPushButton</extends>
-   <header>structures/mycolorpushbutton.h</header>
+   <header>structures/colorpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

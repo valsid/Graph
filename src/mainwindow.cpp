@@ -8,7 +8,7 @@
 #include <QUrl>
 #include <QMessageBox>
 
-extern int rand_int(int min, int max);
+#include "util/rand.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,8 +33,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_openSettings, &QAction::triggered,
             _settingWindow,          &QWidget::show);
 
-    connect(GraphicVertex::selectSignalEmitterInstance(), &graphItemSelectSignalEmitter::vertexSelected,
+    connect(GraphicVertex::selectSignalEmitterInstance(), &graphItemSelectSignalEmitter::vertexSelected_,
             _controlsWidget,                              &Controls::vertexSelected);
+
+    connect(GraphicVertex::selectSignalEmitterInstance(), &graphItemSelectSignalEmitter::vertexMoved,
+            _controlsWidget,                              &Controls::selectedVertexMoved);
 
     connect(ui->action_forTest, &QAction::triggered,
             _scene->graph(),     &Graph::forTest);
@@ -226,7 +229,7 @@ void MainWindow::on_action_coloring_triggered()
         }
         QPen newPen = v->graphicsVertex()->pen();
         if(!colorTable.contains(resultColors[key])) {
-            colorTable.insert(resultColors[key], QColor(rand_int(0, 255), rand_int(0, 255), rand_int(0, 255)));
+            colorTable.insert(resultColors[key], QColor(Rand::intNumber(0, 255), Rand::intNumber(0, 255), Rand::intNumber(0, 255)));
         }
 
         newPen.setColor(colorTable[resultColors[key]]);

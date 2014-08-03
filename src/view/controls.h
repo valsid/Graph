@@ -2,18 +2,40 @@
 #define CONTROLS_H
 
 #include <QWidget>
+#include <QVBoxLayout>
 #include "graph/vertex.h"
 #include "structures/nodeData.h"
-#include "structures/mydirectpushbutton.h"
+#include "structures/directpushbutton.h"
 
 namespace Ui {
 class Controls;
 }
 
+struct edgeListRowData {
+    edgeListRowData(int vertexId, int weight):
+        edgeListRowData(vertexId, weight, QString::number(vertexId), QString::number(weight))
+    { }
+
+    edgeListRowData(int vertexId, int weight, QString textId, QString textWeight):
+        vertexId(vertexId),
+        weight(weight),
+        textVertexId(textId),
+        textWeight  (textWeight)
+    { }
+
+    int vertexId;
+    int weight;
+    DirectPushButton direction;
+
+    QString textVertexId;
+    QString textWeight;
+
+    QWidget *widgetLink;
+};
+
 class Controls : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit Controls(QWidget *parent = 0);
     ~Controls();
@@ -23,7 +45,8 @@ signals:
     void clearScene();
 
 public slots:
-    void vertexSelected(vertexDataForSelection data);
+    void vertexSelected(Vertex *v);
+    void selectedVertexMoved(Vertex *v);
 
 private slots:
     void on_fixedPosCheckBox_toggled(bool checked);
@@ -36,26 +59,24 @@ private slots:
 
     void on_nodeListClearButton_clicked();
 
-//    void on_clearSceneButton_clicked();
-
     void on_nodeListSpinBox_returnPressed();
 
     void on_nodeListWeightSpinBox_returnPressed();
 
-
-//    void edgeSelected(int id, );
-
     void on_backToAddVertex_clicked();
 
 private:
-    void addEdgesToList(QString id, QString weight);
+    void updateDataFromSelectedVertex();
 
     Ui::Controls *ui;
-    QList<int> *_vertices;
-    QList<int> *_verticesWeight;
-    QList<myDirectPushButton*> _verticesDirect;
 
     void clearNodeListItems();
+
+    void addEdgeToView(edgeListRowData *row);
+
+    Vertex *_currentSelectVertex;
+
+    QHash<int, edgeListRowData*> edgeList;
 };
 
 #endif // CONTROLS_H

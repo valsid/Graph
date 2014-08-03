@@ -6,9 +6,6 @@
 #include <QMessageBox>
 #include <QDebug>
 
-extern int    rand_int(int min, int max);
-extern double normal_rand_number(double mean, double stddev);
-
 Graph::Graph(graphTypes type, QObject *parent) :
     QObject(parent),
     _graphType(type)
@@ -38,9 +35,9 @@ Vertex *Graph::createNewVertex(const QVector<edgeData> *outVertexID, QPointF pos
             }
 
             if(data.direction == directions::OUTPUT) {
-                newNode->addVertexLink(vertexFromId, data.vertexWeight);
+                newNode->addVertexLink(vertexFromId, data.edgeWeight);
             } else {
-                vertexFromId->addVertexLink(newNode, data.vertexWeight);
+                vertexFromId->addVertexLink(newNode, data.edgeWeight);
             }
         }
     }
@@ -67,7 +64,8 @@ void Graph::removeVertex(int id)
 
 void Graph::removeVertex(Vertex *vertex)
 {
-    if(vertex != nullptr) {
+    if(vertex != nullptr && _vertices.contains(vertex->id())) {
+//        qDebug() << "rem vertex" << vertex->id();
         delete _vertices.take(vertex->id());
     } else {
         // TODO: make warning window

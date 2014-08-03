@@ -12,7 +12,7 @@
 #include "graph.h"
 #include "../globalsettings.h"
 
-extern double normal_rand_number(double mean, double stddev);
+#include "util/rand.h"
 
 const qreal GraphicVertex::_circleRadius = 30;
 graphItemSelectSignalEmitter *GraphicVertex::_selectSignalEmitter = new graphItemSelectSignalEmitter();
@@ -22,7 +22,7 @@ GraphicVertex::GraphicVertex(Vertex *parentVertex, QGraphicsItem *parent) :
     _parentVertex(parentVertex),
     _isFixedPos(false)
 {
-    setPos(normal_rand_number(0, 200), normal_rand_number(0, 200));
+    setPos(Rand::normalNumber(0, 200), Rand::normalNumber(0, 200));
 
     setBrush(Qt::white);
     setPen(GlobalSettings::vertexDefaultPen());
@@ -161,18 +161,17 @@ void GraphicVertex::vertexSelected()
         inVertex.append(v->targetVertex()->id());
     }
 
-    _selectSignalEmitter->vertexSelect(_parentVertex->id(), outVertex, inVertex, pos(), isFixedPos());
+    _selectSignalEmitter->vertexSelect(this->parentVertex());
 }
 
 void GraphicVertex::vertexMoved()
 {
-    vertexSelected(); // temp
+    _selectSignalEmitter->makeEmitVertexMoved(this->parentVertex());
 }
 
 bool GraphicVertex::isNeedUpdatePos() const
 {
     return isSelected();
-//    return _isNeedUpdatePos;
 }
 
 void GraphicVertex::updateLinkedEdgePos()
@@ -216,8 +215,9 @@ void GraphicVertex::updatePosUsingForce()
         updateVecFunc(edge->sourceVertex()->graphicsVertex());
     }
 
-    if (qAbs(xSpeed) < 2 && qAbs(ySpeed) < 2)
+    if (qAbs(xSpeed) < 2 && qAbs(ySpeed) < 2) {
         xSpeed = ySpeed = 0;
+    }
 
     QRectF sceneRect = scene()->sceneRect();
     QPointF newPos = pos() + QPointF(xSpeed, ySpeed);

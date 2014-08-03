@@ -11,8 +11,6 @@
 
 int Vertex::_idCounter = 1;
 
-extern int rand_int(int min, int max);
-
 Vertex::Vertex(const Graph &parentGraph) :
     Vertex(_idCounter++, parentGraph)
 {}

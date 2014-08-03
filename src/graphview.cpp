@@ -51,7 +51,6 @@ void GraphView::wheelEvent(QWheelEvent *event)
             zoom(0.9);
         }
         return;
-//    qDebug() << event->delta();
 //    zoom(event->delta() / 100.0);
     }
 

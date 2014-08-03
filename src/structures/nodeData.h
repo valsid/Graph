@@ -8,7 +8,7 @@ enum class directions{INPUT, OUTPUT};
 
 struct edgeData {
     int vertexId;
-    int vertexWeight;
+    int edgeWeight;
     directions direction;
 };
 

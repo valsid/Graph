@@ -2,15 +2,15 @@
 
 #include <QKeyEvent>
 
-mySpinBox::mySpinBox(QWidget *&widget) :
+mySpinBox::mySpinBox(QWidget *widget) :
     QSpinBox(widget)
 {
 }
 
-mySpinBox::mySpinBox(QGroupBox *&groupbox) :
-    QSpinBox(groupbox)
-{
-}
+//mySpinBox::mySpinBox(QGroupBox *&groupbox) :
+//    QSpinBox(groupbox)
+//{
+//}
 
 void mySpinBox::keyReleaseEvent(QKeyEvent *event)
 {

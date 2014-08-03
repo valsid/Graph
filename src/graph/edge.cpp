@@ -7,8 +7,6 @@
 
 int Edge::_idCounter = 1;
 
-extern double normal_rand_number(double mean, double stddev);
-
 Edge::Edge(Vertex *sourceNode, Vertex *targetNode, int weight) :
     _vertex(targetNode),
     _weight(weight),
